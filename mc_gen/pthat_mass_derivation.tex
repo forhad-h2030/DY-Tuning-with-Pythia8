@@ -1,0 +1,200 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{default}
+\usecolortheme{seahorse}
+\setbeamertemplate{navigation symbols}{}
+\usepackage{amsmath}
+
+\title{Effect of the \texttt{pTHat} cut on the Drell--Yan dimuon mass}
+\subtitle{Step-by-step derivation for $q\bar q \to \gamma^* \to \mu^+\mu^-$ in Pythia8}
+\author{}
+\date{}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{1. Setup}
+  \begin{itemize}
+    \item Process: \texttt{WeakSingleBoson:ffbar2ffbar(s:gm)}, i.e.\
+          $q\bar q \to \gamma^* \to \mu^+\mu^-$, treated by Pythia as a $2\to2$ process
+    \item Notation ($c=1$):
+      \begin{itemize}
+        \item $p_1,p_2$: incoming partons, collinear with the beam axis $z$
+        \item $k_+,k_-$: outgoing $\mu^+,\mu^-$, each with mass $m_\mu = 0.106$~GeV
+        \item $\hat s = (p_1+p_2)^2 \equiv M^2$: invariant mass$^2$ of the dimuon
+      \end{itemize}
+    \item $\hat p_T$ = transverse momentum (w.r.t.\ the beam axis) of an outgoing muon in the
+          hard-process rest frame
+    \item The generator enforces $\hat p_T \ge p_{\min} \equiv \max(\texttt{pTHatMin},\texttt{pTHatMinDiverge})$
+          since $m_\mu < \texttt{pTHatMinDiverge}$
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{2. Which frame? Longitudinal boosts do not change $p_T$}
+  \begin{itemize}
+    \item The partons are collinear with $z$, so $\vec p_{1T}+\vec p_{2T}=0$:
+          the $\gamma^*$ has \emph{no} transverse momentum at the hard-process level
+    \item The lab frame and the $\gamma^*$ rest frame are then related by a boost along $z$ only
+    \item A boost along $z$ acts as
+    \[
+      E' = \gamma(E - \beta p_z),\quad p_z' = \gamma(p_z - \beta E),\quad p_x' = p_x,\quad p_y'=p_y
+    \]
+    \item Hence $p_T=\sqrt{p_x^2+p_y^2}$ is \textbf{invariant}, and we may compute $\hat p_T$ in the
+          $\gamma^*$ rest frame
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{3. Momenta of the muons in the $\gamma^*$ rest frame}
+  In the rest frame the total four-momentum is $P=(M,\vec 0)$. Conservation gives
+  \[
+    k_+ + k_- = P \;\Rightarrow\; \vec k_+ = -\vec k_- \equiv \vec k,\qquad E_++E_- = M .
+  \]
+  Both muons have the same mass and the same $|\vec k|$, so $E_+ = E_-$ and
+  \[
+    E_+ = E_- = \frac{M}{2}.
+  \]
+  The mass-shell condition $E^2 = |\vec k|^2 + m_\mu^2$ gives
+  \[
+    p^* \equiv |\vec k| = \sqrt{\frac{M^2}{4} - m_\mu^2}
+      = \frac{M}{2}\sqrt{1 - \frac{4m_\mu^2}{M^2}} \;\approx\; \frac{M}{2}
+    \quad (M \gg m_\mu).
+  \]
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{4. Transverse momentum in terms of the decay angle}
+  Let $\theta^*$ be the angle between $\vec k$ and the beam axis $z$, so that
+  \[
+    k_z = p^*\cos\theta^*,\qquad
+    k_x^2 + k_y^2 = p^{*2}\sin^2\theta^* .
+  \]
+  Therefore
+  \[
+    \boxed{\hat p_T = p^*\sin\theta^* \;\approx\; \frac{M}{2}\sin\theta^*}
+  \]
+  \begin{itemize}
+    \item $0 \le \sin\theta^* \le 1 \;\Rightarrow\; 0 \le \hat p_T \le p^*$
+    \item The maximum, $\hat p_T = p^*$, is reached at $\theta^*=90^\circ$
+          (muons perpendicular to the beam)
+    \item The same value holds for $\mu^+$ and $\mu^-$
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{5. Mass threshold from $\hat p_T \ge p_{\min}$}
+  The cut can be satisfied at some angle only if the maximum allowed $\hat p_T$ reaches it:
+  \[
+    p^* \ge p_{\min}
+    \;\Longleftrightarrow\;
+    \frac{M^2}{4} - m_\mu^2 \ge p_{\min}^2
+    \;\Longleftrightarrow\;
+    \boxed{M \ge 2\sqrt{p_{\min}^2 + m_\mu^2}\;\approx\; 2p_{\min}}
+  \]
+  With $m_\mu^2 = 0.011~\text{GeV}^2$:
+  \begin{center}
+  \begin{tabular}{ccc}
+    $p_{\min}$ (GeV) & $M_{\text{threshold}}$ (GeV) & $\approx 2p_{\min}$\\ \hline
+    1.0 & 2.011 & 2.0\\
+    0.5 & 1.006 & 1.0
+  \end{tabular}
+  \end{center}
+  For $M$ below the threshold \emph{no} generated event can pass, whatever the angle.
+  So \texttt{mHatMin = 1.0} is effectively $2$~GeV for \texttt{pTHatMinDiverge = 1.0}.
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{6. Angular range that survives, for $M$ above threshold}
+  Require $\hat p_T \ge p_{\min}$:
+  \[
+    p^*\sin\theta^* \ge p_{\min}
+    \;\Rightarrow\;
+    \sin\theta^* \ge \frac{p_{\min}}{p^*}
+    \;\Rightarrow\;
+    \cos^2\theta^* \le 1 - \frac{p_{\min}^2}{p^{*2}} \equiv c^2 .
+  \]
+  So the allowed region is $|\cos\theta^*| \le c$, with
+  \[
+    c = \sqrt{1 - \frac{p_{\min}^2}{p^{*2}}}
+      \;\approx\; \sqrt{1 - \left(\frac{2p_{\min}}{M}\right)^{2}} .
+  \]
+  Checks: $c=0$ at threshold ($M=2p_{\min}$, only $\theta^*=90^\circ$ survives) and
+  $c \to 1$ for $M \gg p_{\min}$ (cut has no effect).
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{7. Angular distribution of $q\bar q\to\gamma^*\to\mu^+\mu^-$}
+  For massless, unpolarised quarks and muons, the $\gamma^*$ is produced with spin projection
+  $\pm1$ along the $q\bar q$ axis (helicity conservation). Its decay to $\mu^+\mu^-$ then gives
+  \[
+    |\mathcal M|^2 \;\propto\; 1 + \cos^2\theta^* ,
+    \qquad
+    \frac{dN}{d\cos\theta^*} = \frac{3}{8}\,(1+\cos^2\theta^*) ,
+  \]
+  normalised so that $\int_{-1}^{1}\frac{dN}{d\cos\theta^*}\,d\cos\theta^* = \frac38\cdot\frac83 = 1$,
+  using $\int_{-1}^{1}(1+x^2)\,dx = 2 + \tfrac23 = \tfrac83$.
+
+  \medskip
+  Caveats: $\theta^*$ here is measured from the $q\bar q$ axis (the beam axis at the hard-process
+  level, before shower/primordial $k_T$); mass corrections are $O(m_\mu^2/M^2)$.
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{8. Surviving fraction $F(M)$}
+  \[
+    F(M) = \frac{3}{8}\int_{-c}^{c}(1+x^2)\,dx
+         = \frac{3}{8}\left[\,2c + \frac{2c^3}{3}\right]
+         = \frac{3}{4}c + \frac{1}{4}c^3
+         = \boxed{\frac{3c + c^3}{4}}
+  \]
+  Limits:
+  \begin{itemize}
+    \item $c=0$ (threshold): $F=0$
+    \item $c=1$ ($M\gg p_{\min}$): $F = \frac{3+1}{4} = 1$
+    \item For a flat $\cos\theta^*$ distribution instead: $F = c$
+  \end{itemize}
+  Worked example, $p_{\min}=1$~GeV, $M=3$~GeV:
+  \[
+    c = \sqrt{1-(2/3)^2} = 0.745,\quad
+    F = \frac{3(0.745) + 0.745^3}{4} = \frac{2.236+0.413}{4} = 0.66 .
+  \]
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{9. Numerical result}
+  \begin{center}
+  \begin{tabular}{ccc}
+    $M$ (GeV) & $F$, $p_{\min}=1.0$ & $F$, $p_{\min}=0.5$\\ \hline
+    1.0 & 0    & 0   \\
+    1.5 & 0    & 0.66\\
+    2.0 & 0    & 0.81\\
+    3.0 & 0.66 & 0.92\\
+    5.0 & 0.88 & 0.97
+  \end{tabular}
+  \end{center}
+  \begin{itemize}
+    \item To correct a generated yield above threshold: divide by $F(M)$
+    \item Below threshold nothing is generated and it cannot be recovered by reweighting
+    \item \texttt{pTHatMinDiverge} has a minimum of $0.5$~GeV, so the floor cannot go below $M\approx1$~GeV
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{10. Checks and caveats}
+  \begin{itemize}
+    \item Assumes Pythia's $\hat p_T$ is defined as above (outgoing muon, hard-process frame,
+          beam axis reference); verify with the generated $\hat m$ spectrum, which should
+          vanish below $\approx 2p_{\min}$
+    \item The $1+\cos^2\theta^*$ form is an approximation; compare with truth $\cos\theta^*$
+    \item The cut acts on the hard process only; initial-state showers and primordial $k_T$
+          change the final dimuon $p_T$ afterwards
+    \item The lost region is muons emitted along the beam axis in the $\gamma^*$ frame,
+          which is largely outside the spectrometer acceptance anyway
+  \end{itemize}
+\end{frame}
+
+\end{document}

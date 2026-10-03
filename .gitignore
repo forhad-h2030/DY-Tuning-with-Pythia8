@@ -1,0 +1,17 @@
+*.root
+*.log
+*.tmp
+*.swp
+build/
+mc_gen_comb/scratch
+mc_gen/scratch
+inst/
+work_reco/data
+work_reco/scratch
+Convert/scratch
+Convert/data
+mc_gen_comb/data
+mc_gen/data
+mc_gen_comb/scratch
+mc_gen/scratch
+.DS_Store
