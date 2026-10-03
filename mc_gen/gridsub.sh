@@ -43,7 +43,7 @@ for (( id=1; id<=$njobs; id++ )) ; do
     echo "$CMD"
     unbuffer $CMD |& tee $work/$id/log_jobsub_submit.txt
     RET_SUB=${PIPESTATUS[0]}
-    test $RET_SUB -ne 0 && exit $RET_SUB
+    if [ $RET_SUB -ne 0 ]; then exit $RET_SUB; fi
   else
     mkdir -p $work/$id/input
     cp -p $work/input.tar.gz $work/$id/input
