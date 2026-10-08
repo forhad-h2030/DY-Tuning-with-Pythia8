@@ -87,6 +87,7 @@ int DimuAnaRUS::InitRun(PHCompositeNode* startNode)
 	m_tree->Branch("rfIntensity", rfIntensity, "rfIntensity[33]/I");
 	m_tree->Branch("fpgaTrigger", fpgaTrigger, "fpgaTrigger[5]/I");
 	m_tree->Branch("nimTrigger", nimTrigger, "nimTrigger[5]/I");
+	m_tree->Branch("evtPassTrigEmu", &evtPassTrigEmu, "evtPassTrigEmu/I");
 
     if(sqhit_flag){
         m_tree->Branch("hitID", &hitID);
@@ -204,6 +205,7 @@ int DimuAnaRUS::InitRun(PHCompositeNode* startNode)
 
 
         m_tree->Branch("rec_dimuon_mass_tgt", &rec_dimuon_mass_tgt);
+        m_tree->Branch("rec_dimuon_pass_trig", &rec_dimuon_pass_trig);
 
         // track vertex positions of the two muons
         m_tree->Branch("rec_dimuon_x_pos_vtx", &rec_dimuon_x_pos_vtx);
@@ -307,6 +309,7 @@ int DimuAnaRUS::process_event(PHCompositeNode* startNode)
 	   rfID = m_evt->get_qie_rf_id();
 	   turnID = m_evt->get_qie_turn_id();
 
+	   evtPassTrigEmu = 0;
 	   fpgaTrigger[0] = m_evt->get_trigger(SQEvent::MATRIX1);
 	   fpgaTrigger[1] = m_evt->get_trigger(SQEvent::MATRIX2);
 	   fpgaTrigger[2] = m_evt->get_trigger(SQEvent::MATRIX3);
@@ -519,7 +522,6 @@ int index = -1;
 
 		if(reco_dimu_mode==true){
 			ResetRecoDimuBranches();
-			int n_dimu_pass_trig = 0;
 			for (auto it = m_sq_dim_vec->begin(); it != m_sq_dim_vec->end(); it++) {
 				SRecDimuon& sdim = dynamic_cast<SRecDimuon&>(**it);
 				int trk_id_pos = sdim.get_track_id_pos();
@@ -559,7 +561,8 @@ int index = -1;
 				sdim.calcVariables(1); // 1 = target
 				if ((sdim.p_pos_target + sdim.p_neg_target).M() <= 0.) continue;
 
-				// Trigger emulation: require matched roads in opposite top/bottom halves
+				// Trigger emulation: matched roads in opposite top/bottom halves (flag only, no rejection)
+				bool dimu_pass_trig = true; // no emulation requested -> nothing to reject
 				if (reco_mode && (data_trig_mode || mc_trig_mode)) {
 					std::vector<int> list_road_pos = UtilTrack::FindMatchedRoads(&trk_pos);
 					std::vector<int> list_road_neg = UtilTrack::FindMatchedRoads(&trk_neg);
@@ -578,9 +581,9 @@ int index = -1;
 						     << "/" << list_road_nt.size() << "/" << list_road_nb.size()
 						     << "  pass = " << pass_trig << endl;
 					}
-					if (!pass_trig) continue;
+					dimu_pass_trig = pass_trig; // flag only; selection is applied offline
 				}
-				++n_dimu_pass_trig;
+				if (dimu_pass_trig) evtPassTrigEmu = 1;
 
 
 				//--------
@@ -672,9 +675,8 @@ int index = -1;
 
 				TLorentzVector mom_tgt = sdim.p_pos_target + sdim.p_neg_target;
 				rec_dimuon_mass_tgt.push_back(mom_tgt.M());
+				rec_dimuon_pass_trig.push_back(dimu_pass_trig ? 1 : 0);
 			}
-			// Drop the event (no tree entry) if no dimuon passes the trigger emulation
-			if ((data_trig_mode || mc_trig_mode) && n_dimu_pass_trig == 0) return Fun4AllReturnCodes::EVENT_OK;
 		}
 	}
 	m_tree->Fill();
@@ -742,6 +744,7 @@ void DimuAnaRUS::ResetRecoDimuBranches() {
     rec_dimuon_px_pos_dump.clear(); rec_dimuon_py_pos_dump.clear(); rec_dimuon_pz_pos_dump.clear();
     rec_dimuon_px_neg_dump.clear(); rec_dimuon_py_neg_dump.clear(); rec_dimuon_pz_neg_dump.clear();
     rec_dimuon_mass_tgt.clear();
+    rec_dimuon_pass_trig.clear();
 
     rec_dimuon_x_pos_vtx.clear();
     rec_dimuon_y_pos_vtx.clear();

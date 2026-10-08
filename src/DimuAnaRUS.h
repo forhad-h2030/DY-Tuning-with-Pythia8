@@ -102,6 +102,8 @@ class DimuAnaRUS: public SubsysReco {
 	int rfIntensity[33];
 	int fpgaTrigger[5] = {0};
 	int nimTrigger[5] = {0};
+	int evtPassTrigEmu = 0; // 1 if any reco dimuon passes the trigger emulation
+	std::vector<int> rec_dimuon_pass_trig; // per-dimuon trigger emulation result
 
 	std::vector<int> hitID;
 	std::vector<int> processID;
