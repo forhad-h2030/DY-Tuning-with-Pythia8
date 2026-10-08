@@ -9,9 +9,11 @@ njobs=${2:-100}
 nevents=${3:-100}
 
 cd $dir_macros
+tunes=${4:-}  # optional: space-separated tune list, e.g. "tune02 tune03"
 for cfg in phpythia8_DY_tune??.cfg; do
   tune=${cfg#phpythia8_DY_}
   tune=${tune%.cfg}
+  if [ -n "$tunes" ] && [[ " $tunes " != *" $tune "* ]]; then continue; fi
   jobname=DY_$tune
   echo "=== $jobname: $cfg, $njobs jobs x $nevents events"
   ./gridsub.sh $jobname $do_sub $njobs $nevents $cfg || exit $?
