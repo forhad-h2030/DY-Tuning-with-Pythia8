@@ -1,8 +1,8 @@
 #!/bin/bash
-# Submit a range of DY tune configs (default tune01 ... tune41) through submit_tunes.sh,
+# Submit a range of DY tune configs (default tune01 ... tune30) through submit_tunes.sh,
 # after checking that the submission is safe.
 #
-# Usage: ./submit_scan.sh [-a first=1] [-b last=41] [-j njobs=100] [-n nevents=100]
+# Usage: ./submit_scan.sh [-a first=1] [-b last=30] [-j njobs=100] [-n nevents=100]
 #                         [-L] [-c] [-y] [-F]
 #   -L  local mode (do_sub=0, runs the jobs here, for a small test: use -j 1 -n 5)
 #   -c  check only: run all the checks and print the command, do not submit
@@ -11,10 +11,10 @@
 #
 # Examples: ./submit_scan.sh -c                      # check everything
 #           ./submit_scan.sh -a 1 -b 1 -L -j 1 -n 5   # local test of tune01
-#           ./submit_scan.sh                          # submit tune01-41, 100 jobs x 100 events
+#           ./submit_scan.sh                          # submit tune01-30, 100 jobs x 100 events
 
 dir=$(dirname "$(readlink -f "$BASH_SOURCE" 2>/dev/null || echo "$0")")
-first=1; last=41; njobs=100; nevents=100; do_sub=1; check_only=0; assume_yes=0; force=0
+first=1; last=30; njobs=100; nevents=100; do_sub=1; check_only=0; assume_yes=0; force=0
 while getopts "a:b:j:n:LcyF" opt; do
   case $opt in
     a) first=$OPTARG ;;
