@@ -91,8 +91,8 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
 	if(gen_pythia8) {    
 		PHPythia8 *pythia8 = new PHPythia8();
 		//pythia8->Verbosity(99);
-		//pythia8->set_config_file(pythia_cfg);
-		pythia8->set_config_file("phpythia8_DY.cfg");
+		pythia8->set_config_file(pythia_cfg);
+		//pythia8->set_config_file("phpythia8_DY.cfg");
 	    //pythia8->set_config_file("phpythia8_Jpsi.cfg"); // Jpsi, Jpsi_direct, psip
 	    //pythia8->set_config_file("phpythia8_psip.cfg"); // Jpsi, Jpsi_direct, psip
 		if(SQ_vtx_gen) pythia8->enableLegacyVtxGen();
