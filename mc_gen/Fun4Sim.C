@@ -19,7 +19,7 @@ R__LOAD_LIBRARY(fun4all_rus_file_manager)
 
 using namespace std;
 
-int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
+int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY_fitbest.cfg")
 {
 	//const double target_coil_pos_z = -300;
 	const double target_coil_pos_z = -645; //only for the upstream
@@ -92,7 +92,8 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
 		PHPythia8 *pythia8 = new PHPythia8();
 		//pythia8->Verbosity(99);
 		//pythia8->set_config_file(pythia_cfg);
-		pythia8->set_config_file("phpythia8_DY.cfg");
+		//pythia8->set_config_file("phpythia8_DY.cfg");
+		pythia8->set_config_file("phpythia8_DY_fitbest.cfg");
 	    //pythia8->set_config_file("phpythia8_Jpsi.cfg"); // Jpsi, Jpsi_direct, psip
 	    //pythia8->set_config_file("phpythia8_psip.cfg"); // Jpsi, Jpsi_direct, psip
 		if(SQ_vtx_gen) pythia8->enableLegacyVtxGen();
@@ -187,7 +188,7 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
 
 		if(drellyan_gen){
 			e906legacy->set_xfRange(-0.5, 1.0); //[-1.,1.]
-			e906legacy->set_massRange(8.0, 10.0);
+			e906legacy->set_massRange(0.25, 10.0);
 			e906legacy->enableDrellYanGen();
 		}
 		if(Psip_gen){ 
@@ -259,14 +260,12 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
         //se->registerSubsystem(muon_filter);
 	/// Save only events that are in the geometric acceptance.
 
-    /*
 	SQGeomAcc* geom_acc = new SQGeomAcc();
 	geom_acc->SetMuonMode(SQGeomAcc::PAIR_TBBT); // PAIR, PAIR_TBBT, SINGLE, SINGLE_T, etc.
 	//geom_acc->SetMuonMode(SQGeomAcc::PAIR_TBBT); // PAIR, PAIR_TBBT, SINGLE, SINGLE_T, etc.
 	geom_acc->SetPlaneMode(SQGeomAcc::HODO_CHAM); // HODO, CHAM or HODO_CHAM
 	geom_acc->SetNumOfH1EdgeElementsExcluded(4); // Exclude 4 elements at H1 edges
 	se->registerSubsystem(geom_acc);
-    */
 
 	// Make SQ nodes for truth info
 	se->registerSubsystem(new TruthNodeMaker());
