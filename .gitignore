@@ -15,3 +15,9 @@ mc_gen/data
 mc_gen_comb/scratch
 mc_gen/scratch
 .DS_Store
+
+# analysis note (keep out of git)
+ana_note/
+
+__pycache__/
+*.pyc
