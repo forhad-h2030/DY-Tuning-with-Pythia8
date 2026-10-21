@@ -85,6 +85,7 @@ class DimuAnaRUS: public SubsysReco {
 
 	void SetTreeName(const std::string& name) { m_tree_name = name; }
 	void SetFileName(const std::string& name) { m_file_name = name; }
+	static double GetPtReWeight(double pT, double xF, double mass);
 	void ResetHitBranches();
 	void ResetTrueBranches();
 	void ResetRecoBranches();
@@ -104,6 +105,10 @@ class DimuAnaRUS: public SubsysReco {
 	int nimTrigger[5] = {0};
 	int evtPassTrigEmu = 0; // 1 if any reco dimuon passes the trigger emulation
 	std::vector<int> rec_dimuon_pass_trig; // per-dimuon trigger emulation result
+
+	// True dimuon (first one in SQTruthDimuonVector)
+	double true_dimuon_mass, true_dimuon_pT, true_dimuon_xF;
+	double ptReWeight;
 
 	std::vector<int> hitID;
 	std::vector<int> processID;

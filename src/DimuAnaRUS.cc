@@ -22,10 +22,30 @@
 #include <phool/getClass.h>
 #include <geom_svc/GeomSvc.h>
 #include <UtilAna/UtilTrack.h>
+#include <UtilAna/UtilDimuon.h>
 #include <UtilAna/UtilTrigger.h>
 #include <UtilAna/TrigRoadset.h>
 #include "DimuAnaRUS.h"
 using namespace std;
+
+/// DY pT reweight, cf. GetPtReWeight() in e906-gmc-reco/inc/Common.h (target dependence dropped)
+double DimuAnaRUS::GetPtReWeight(double pT, double xF, double mass)
+{
+  const double P = 120.0;
+  const double M = 0.938;
+  const double S = 2*M*M + 2*M*sqrt(P*P+M*M);
+  const double p1_old = 2.8;
+
+  double tau = mass*mass/S;
+  double pTsqMax = S/4 * (1-tau)*(1-tau)*(1-xF*xF);
+  if (pTsqMax < 0.09) return 1.0;
+
+  const double p1_new = 2.411 - 0.7658 * fabs(xF);
+
+  double f_old = pow(1+pT*pT/p1_old/p1_old, 6) * p1_old*p1_old * (1 - pow(1 + pTsqMax/p1_old/p1_old, -5));
+  double f_new = pow(1+pT*pT/p1_new/p1_new, 6) * p1_new*p1_new * (1 - pow(1 + pTsqMax/p1_new/p1_new, -5));
+  return f_old / f_new;
+}
 
 DimuAnaRUS::DimuAnaRUS(const std::string& name)
   : SubsysReco  (name),
@@ -100,6 +120,10 @@ int DimuAnaRUS::InitRun(PHCompositeNode* startNode)
     }
 
 	if (true_mode) {
+        m_tree->Branch("true_dimuon_mass", &true_dimuon_mass, "true_dimuon_mass/D");
+        m_tree->Branch("true_dimuon_pT", &true_dimuon_pT, "true_dimuon_pT/D");
+        m_tree->Branch("true_dimuon_xF", &true_dimuon_xF, "true_dimuon_xF/D");
+        m_tree->Branch("ptReWeight", &ptReWeight, "ptReWeight/D");
         m_tree->Branch("gCharge", &gCharge);
         m_tree->Branch("gTrackID", &gTrackID);
         m_tree->Branch("gvx", &gvx);
@@ -231,6 +255,7 @@ int DimuAnaRUS::InitRun(PHCompositeNode* startNode)
 	if (true_mode) {
 		m_vec_trk = findNode::getClass<SQTrackVector>(startNode, "SQTruthTrackVector");
 		m_evt_true = findNode::getClass<SQMCEvent     >(startNode, "SQMCEvent");
+		m_true_vec_dim = findNode::getClass<SQDimuonVector>(startNode, "SQTruthDimuonVector");
 		if (!m_vec_trk || !m_evt_true) {
 			return Fun4AllReturnCodes::ABORTEVENT;
 		}
@@ -331,6 +356,11 @@ int DimuAnaRUS::process_event(PHCompositeNode* startNode)
 	if(true_mode == true){
 		ResetTrueBranches();
 		ResetHitBranches();
+		if (m_true_vec_dim && m_true_vec_dim->size() > 0) {
+			double x1, x2, costh, phi;
+			UtilDimuon::CalcVar(m_true_vec_dim->at(0), true_dimuon_mass, true_dimuon_pT, x1, x2, true_dimuon_xF, costh, phi);
+			ptReWeight = GetPtReWeight(true_dimuon_pT, true_dimuon_xF, true_dimuon_mass);
+		}
 		for (unsigned int ii = 0; ii < m_vec_trk->size(); ii++) {
 
 			//cout << "inside the true track loop: "<<endl;
@@ -702,6 +732,8 @@ void DimuAnaRUS::ResetHitBranches() {
 	driftDistance.clear();
 }
 void DimuAnaRUS::ResetTrueBranches() {
+	true_dimuon_mass = true_dimuon_pT = true_dimuon_xF = -999;
+	ptReWeight = 1.0;
 	gCharge.clear(); gTrackID.clear();
 	gvx.clear(); gvy.clear(); gvz.clear();
 	gpx.clear(); gpy.clear(); gpz.clear();
