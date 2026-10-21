@@ -44,11 +44,11 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
 	const double KMAGSTR = -1.025;
 
 	//! Particle generator flag.  Only one of these must be true.
-	const bool gen_pythia8  = true;
+	const bool gen_pythia8  = false;
 	const bool gen_cosmic   = false;
 	const bool gen_particle = false;
 	const bool read_hepmc   = false;
-	const bool gen_e906dim =  false; // cf. SQPrimaryParticleG
+	const bool gen_e906dim =  true; // cf. SQPrimaryParticleG
 	//! Use SQPrimaryVertexGen or not.
 	const bool SQ_vtx_gen = true;
 
@@ -187,7 +187,7 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
 
 		if(drellyan_gen){
 			e906legacy->set_xfRange(-0.5, 1.0); //[-1.,1.]
-			e906legacy->set_massRange(8.0, 10.0);
+			e906legacy->set_massRange(0.25, 10.0);
 			e906legacy->enableDrellYanGen();
 		}
 		if(Psip_gen){ 
@@ -259,14 +259,12 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
         //se->registerSubsystem(muon_filter);
 	/// Save only events that are in the geometric acceptance.
 
-    /*
 	SQGeomAcc* geom_acc = new SQGeomAcc();
 	geom_acc->SetMuonMode(SQGeomAcc::PAIR_TBBT); // PAIR, PAIR_TBBT, SINGLE, SINGLE_T, etc.
 	//geom_acc->SetMuonMode(SQGeomAcc::PAIR_TBBT); // PAIR, PAIR_TBBT, SINGLE, SINGLE_T, etc.
 	geom_acc->SetPlaneMode(SQGeomAcc::HODO_CHAM); // HODO, CHAM or HODO_CHAM
 	geom_acc->SetNumOfH1EdgeElementsExcluded(4); // Exclude 4 elements at H1 edges
 	se->registerSubsystem(geom_acc);
-    */
 
 	// Make SQ nodes for truth info
 	se->registerSubsystem(new TruthNodeMaker());
