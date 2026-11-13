@@ -6,6 +6,7 @@
 #include <TChain.h>
 #include <TH1D.h>
 #include <TCanvas.h>
+#include <TRandom3.h>
 #include <interface_main/SQRun.h>
 #include <interface_main/SQHitVector.h>
 #include <interface_main/SQEvent.h>
@@ -27,6 +28,22 @@
 #include <UtilAna/TrigRoadset.h>
 #include "DimuAnaRUS.h"
 using namespace std;
+
+/// E906 legacy DY K-factor, as in SQPrimaryParticleGen::CrossSectionDrellYan():
+/// 1.25 below 2.5 GeV, linear to 1.82 at 7.5 GeV, 1.82 above.
+double DimuAnaRUS::GetKFactor(double mass)
+{
+  if (mass < 2.5) return 1.25;
+  if (mass < 7.5) return 1.25 + (1.82 - 1.25)*(mass - 2.5)/5.;
+  return 1.82;
+}
+
+void DimuAnaRUS::SetKFactorReject(bool enable, unsigned int seed)
+{
+  kfactor_reject_mode = enable;
+  delete m_rng;
+  m_rng = enable ? new TRandom3(seed) : 0;
+}
 
 /// DY pT reweight, cf. GetPtReWeight() in e906-gmc-reco/inc/Common.h (target dependence dropped)
 double DimuAnaRUS::GetPtReWeight(double pT, double xF, double mass)
@@ -64,14 +81,17 @@ DimuAnaRUS::DimuAnaRUS(const std::string& name)
     reco_dimu_mode(false),
     reco_mode(false),
     data_trig_mode(false),
-    mc_trig_mode(true)
+    mc_trig_mode(true),
+    kFactor(1.0),
+    kfactor_reject_mode(false),
+    m_rng(0)
 {
   ;
 }
 
 DimuAnaRUS::~DimuAnaRUS()
 {
-  ;
+  delete m_rng;
 }
 
 int DimuAnaRUS::Init(PHCompositeNode* startNode)
@@ -124,6 +144,7 @@ int DimuAnaRUS::InitRun(PHCompositeNode* startNode)
         m_tree->Branch("true_dimuon_pT", &true_dimuon_pT, "true_dimuon_pT/D");
         m_tree->Branch("true_dimuon_xF", &true_dimuon_xF, "true_dimuon_xF/D");
         m_tree->Branch("ptReWeight", &ptReWeight, "ptReWeight/D");
+        m_tree->Branch("kFactor", &kFactor, "kFactor/D");
         m_tree->Branch("gCharge", &gCharge);
         m_tree->Branch("gTrackID", &gTrackID);
         m_tree->Branch("gvx", &gvx);
@@ -360,6 +381,9 @@ int DimuAnaRUS::process_event(PHCompositeNode* startNode)
 			double x1, x2, costh, phi;
 			UtilDimuon::CalcVar(m_true_vec_dim->at(0), true_dimuon_mass, true_dimuon_pT, x1, x2, true_dimuon_xF, costh, phi);
 			ptReWeight = GetPtReWeight(true_dimuon_pT, true_dimuon_xF, true_dimuon_mass);
+			kFactor = GetKFactor(true_dimuon_mass);
+			// accept-reject on the legacy K-factor: rejected events are not written to the tree
+			if (kfactor_reject_mode && m_rng->Uniform() > kFactor/1.82) return Fun4AllReturnCodes::EVENT_OK;
 		}
 		for (unsigned int ii = 0; ii < m_vec_trk->size(); ii++) {
 
@@ -733,6 +757,7 @@ void DimuAnaRUS::ResetHitBranches() {
 }
 void DimuAnaRUS::ResetTrueBranches() {
 	true_dimuon_mass = true_dimuon_pT = true_dimuon_xF = -999;
+	kFactor = 1.0;
 	ptReWeight = 1.0;
 	gCharge.clear(); gTrackID.clear();
 	gvx.clear(); gvy.clear(); gvz.clear();

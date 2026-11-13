@@ -44,13 +44,14 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
 	const double KMAGSTR = -1.025;
 
 	//! Particle generator flag.  Only one of these must be true.
-	const bool gen_pythia8  = false;
+	const bool gen_pythia8  = true;
 	const bool gen_cosmic   = false;
 	const bool gen_particle = false;
 	const bool read_hepmc   = false;
-	const bool gen_e906dim =  true; // cf. SQPrimaryParticleG
-	//! Use SQPrimaryVertexGen or not.
+	const bool gen_e906dim =  false; // cf. SQPrimaryParticleG
 	const bool SQ_vtx_gen = true;
+
+    const bool kfactor_reject = false;
 
 	recoConsts *rc = recoConsts::instance();
 	rc->set_IntFlag("RUNNUMBER", 5433); /// The geometry is selected based on run number.
@@ -340,6 +341,7 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
 	//  out->set_embedding_id(1);
 	//  se->registerOutputManager(out);
 	//}
+
 	DimuAnaRUS* dimuAna = new DimuAnaRUS();
     dimuAna->SetTreeName("tree");
 	dimuAna->SetMCTrueMode(true);
@@ -349,6 +351,7 @@ int Fun4Sim(const int nevent = 10, const char* pythia_cfg = "phpythia8_DY.cfg")
     dimuAna->SetMCTriggerEmu(true);
     dimuAna->SetRecoDimuMode(true);
     dimuAna->EnableSQHit(true);
+    if (kfactor_reject && gen_pythia8 && !gen_e906dim) dimuAna->SetKFactorReject(true);
     se->registerSubsystem(dimuAna);
 	const bool count_only_good_events = true;
 	se->run(nevent, count_only_good_events);

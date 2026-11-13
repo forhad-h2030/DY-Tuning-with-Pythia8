@@ -16,6 +16,7 @@ class SQDimuonVector;
 class SQMCEvent;
 class TrackletVector;
 class SQHit;
+class TRandom3;
 
 class DimuAnaRUS: public SubsysReco {
 	SQEvent* m_evt;
@@ -61,6 +62,10 @@ class DimuAnaRUS: public SubsysReco {
 		if (enable) data_trig_mode = false; // the two modes are mutually exclusive; disabling one leaves both off
 	}   
 
+	/// Keep each event with probability K(M)/K_max (E906 legacy K-factor, true mass); for unweighted PYTHIA8 only.
+	/// Never enable it for the legacy generator: its weight already contains K(M).
+	/// seed = 0 gives a different random sequence per job.
+	void SetKFactorReject(bool enable, unsigned int seed = 0);
 	void SetSaveOnlyDimuon(bool enable) { saveDimuonOnly = enable; }
 	void SetSourceFlag(int flag) { SourceFlag = flag; }
 	void SetProcessId(int proc_id_) { proc_id = proc_id_; }
@@ -86,6 +91,7 @@ class DimuAnaRUS: public SubsysReco {
 	void SetTreeName(const std::string& name) { m_tree_name = name; }
 	void SetFileName(const std::string& name) { m_file_name = name; }
 	static double GetPtReWeight(double pT, double xF, double mass);
+	static double GetKFactor(double mass);
 	void ResetHitBranches();
 	void ResetTrueBranches();
 	void ResetRecoBranches();
@@ -109,6 +115,9 @@ class DimuAnaRUS: public SubsysReco {
 	// True dimuon (first one in SQTruthDimuonVector)
 	double true_dimuon_mass, true_dimuon_pT, true_dimuon_xF;
 	double ptReWeight;
+	double kFactor;            // legacy K-factor at the true mass (stored always in true mode)
+	bool kfactor_reject_mode;  // accept-reject on kFactor / K_max
+	TRandom3* m_rng;
 
 	std::vector<int> hitID;
 	std::vector<int> processID;
